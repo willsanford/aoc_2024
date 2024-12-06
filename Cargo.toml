@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 reqwest = {version = "0.12.9", features = ["cookies"]}
 tokio = {version = "1.41.1", features = ["full"]}
+paste = "1.0"

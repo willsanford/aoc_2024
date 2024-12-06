@@ -57,10 +57,12 @@ async fn main() -> Result<(), reqwest::Error> {
     let input = get_day(*day as u16, false).await?;
 
     let example_output = run_day(*day, *part, example_input);
-    let output = run_day(*day, *part, input);
 
     println!("Result: Day {} Part {}", day, part);
     println!("Example: {}", example_output);
-    println!("Real: {}", output);
+    if true {
+        let output = run_day(*day, *part, input);
+        println!("Real: {}", output);
+    }
     Ok(())
 }
