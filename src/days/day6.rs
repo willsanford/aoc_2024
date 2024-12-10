@@ -47,8 +47,6 @@ pub fn part1(input: String) -> u64 {
             }
         }
     }
-    let n = *board.iter().map(|((_, n), _)| n).max().unwrap() as i32;
-    let m = *board.iter().map(|((m, _), _)| m).max().unwrap() as i32;
 
     let mut visited_pos: HashSet<(i32, i32)> = HashSet::new();
     while board.contains_key(&pos) {
