@@ -1,4 +1,5 @@
 pub mod day1;
+pub mod day10;
 pub mod day2;
 pub mod day3;
 pub mod day4;
@@ -6,6 +7,7 @@ pub mod day5;
 pub mod day6;
 pub mod day7;
 pub mod day8;
+pub mod day9;
 
 pub fn run_day(day: i16, part: i16, input: String) -> u64 {
     // TODO : do something interesting with days and macros
@@ -26,6 +28,10 @@ pub fn run_day(day: i16, part: i16, input: String) -> u64 {
         (7, 2) => day7::part2(input),
         (8, 1) => day8::part1(input),
         (8, 2) => day8::part2(input),
+        (9, 1) => day9::part1(input),
+        (9, 2) => day9::part2(input),
+        (10, 1) => day10::part1(input),
+        (10, 2) => day10::part2(input),
         _ => {
             eprintln!("Not implemented for day {} part {}", day, part);
             0
