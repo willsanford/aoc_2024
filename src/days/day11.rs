@@ -6,8 +6,7 @@ pub fn part1(input: String) -> u64 {
         .map(|c| c.parse::<u64>().unwrap())
         .collect::<Vec<u64>>();
 
-    for i in 0..30 {
-        println!("{}|{:?}", i, arr);
+    for _ in 0..30 {
         arr = arr
             .iter()
             .map(|v| -> Vec<u64> {
