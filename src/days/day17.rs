@@ -169,6 +169,52 @@ fn eval(a: u64) -> u64 {
     (b ^ (a >> b) ^ 6_u64) & 7_u64
 }
 
+fn recurse(pre_a: u64, out: &Vec<u64>, target: &Vec<u64>) -> Vec<Vec<u64>> {
+    if out.len() == target.len() {
+        return vec![out.to_vec()];
+    }
+    (0_u64..(1 << 3)).map(|i| pre_a + (i << 7)).filter_map(|a| {
+        if eval(a) == target[out.len()] {
+            let mut new_out: Vec<u64> = out.clone();
+            new_out.push(if new_out.len() == target.len() - 1 {
+                a
+            } else {
+                a & 7
+            });
+            Some(recurse(a >> 3, &new_out, target))
+        } else {
+            None
+        }
+    }).flatten().collect()
+}
+
+pub fn part2(input: String) -> u64 {
+    let program: Vec<u64> = input
+        .split_once("\n\n")
+        .unwrap()
+        .1
+        .split_once(": ")
+        .unwrap()
+        .1
+        .split(',')
+        .filter_map(|v| remove_whitespace(v).parse::<u64>().ok())
+        .collect();
+
+    let values: Vec<_> = (0..(1 << 10))
+        .filter(|i| eval(*i) == program[0])
+        .map(|seed| {
+            let out = vec![seed & 7];
+            recurse(seed >> 3, &out, &program)
+        }).flatten().map(|values| {
+        values.iter()
+            .enumerate()
+            .fold(0, |acc, (i, e)| acc + (e << (i * 3)))
+    }).collect();
+    *values.iter().min().unwrap()
+    // println!("{:?}", final_solution);
+    // println!("{:?}", eval_full(final_solution));
+}
+/*
 fn recurse(pre_a: u64, out: &Vec<u64>, target: &Vec<u64>) -> Option<Vec<u64>> {
     if out.len() == target.len() {
         return Some(out.to_vec());
@@ -214,3 +260,4 @@ pub fn part2(input: String) -> u64 {
     // println!("{:?}", final_solution);
     // println!("{:?}", eval_full(final_solution));
 }
+*/
