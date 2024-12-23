@@ -56,10 +56,11 @@ async fn main() -> Result<(), reqwest::Error> {
     let example_input = fs::read_to_string("data/example.txt").unwrap();
     let input = get_day(*day as u16, false).await?;
 
-    let example_output = run_day(*day, *part, example_input);
-
     println!("Result: Day {} Part {}", day, part);
-    println!("Example: {}", example_output);
+    if false {
+        let example_output = run_day(*day, *part, example_input);
+        println!("Example: {}", example_output);
+    }
     if true {
         let output = run_day(*day, *part, input);
         println!("Real: {}", output);

@@ -1,10 +1,10 @@
 use std::fmt;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Program {
-    A: u64,
-    B: u64,
-    C: u64,
+    a: u64,
+    b: u64,
+    c: u64,
 
     pc: usize,
     instructions: Vec<u64>,
@@ -15,7 +15,7 @@ impl fmt::Display for Program {
         write!(
             f,
             "R| A:{}, B:{}, C:{}\npc: {}",
-            self.A, self.B, self.C, self.pc
+            self.a, self.b, self.c, self.pc
         )
     }
 }
@@ -24,9 +24,9 @@ impl Program {
     fn combo_op(&self, operand_val: u64) -> u64 {
         match operand_val {
             0..=3 => operand_val,
-            4 => self.A,
-            5 => self.B,
-            6 => self.C,
+            4 => self.a,
+            5 => self.b,
+            6 => self.c,
             _ => {
                 println!("Something has gone horribly wrong please stop");
                 0
@@ -52,33 +52,33 @@ impl Program {
     }
 
     fn dv(&mut self, operand: u64) -> u64 {
-        (self.A as f64 / (2_u64.pow(self.combo_op(operand) as u32)) as f64).floor() as u64
+        (self.a as f64 / (2_u64.pow(self.combo_op(operand) as u32)) as f64).floor() as u64
     }
 
     fn adv(&mut self, operand: u64) -> Option<u64> {
-        self.A = self.dv(operand);
+        self.a = self.dv(operand);
         None
     }
 
     fn bxl(&mut self, operand: u64) -> Option<u64> {
-        self.B ^= operand;
+        self.b ^= operand;
         None
     }
 
     fn bst(&mut self, operand: u64) -> Option<u64> {
-        self.B = self.combo_op(operand) % 8;
+        self.b = self.combo_op(operand) % 8;
         None
     }
 
     fn jnz(&mut self, operand: u64) -> Option<u64> {
-        if self.A != 0 {
+        if self.a != 0 {
             self.pc = operand as usize;
         }
         None
     }
 
     fn bxc(&mut self, operand: u64) -> Option<u64> {
-        self.B = self.B ^ self.C;
+        self.b = self.b ^ self.c;
         None
     }
 
@@ -87,25 +87,23 @@ impl Program {
     }
 
     fn bdv(&mut self, operand: u64) -> Option<u64> {
-        self.B = self.dv(operand);
+        self.b = self.dv(operand);
         None
     }
 
     fn cdv(&mut self, operand: u64) -> Option<u64> {
-        self.C = self.dv(operand);
+        self.c = self.dv(operand);
         None
     }
 
     fn run(&mut self) -> String {
         let mut output: Vec<u64> = Vec::new();
         while self.pc < self.instructions.len() {
-            println!("{}", self);
-            println!("{:?}", output);
             let (op, operand) = (self.instructions[self.pc], self.instructions[self.pc + 1]);
             if let Some(o) = self.run_op(op, operand) {
                 output.push(o);
             }
-            if op != 3 || self.A == 0 {
+            if op != 3 || self.a == 0 {
                 self.pc += 2;
             }
         }
@@ -140,9 +138,9 @@ pub fn part1(input: String) -> u64 {
         .collect();
 
     let mut program = Program {
-        A: d_[0],
-        B: d_[1],
-        C: d_[2],
+        a: d_[0],
+        b: d_[1],
+        c: d_[2],
         pc: 0,
         instructions: program,
     };
@@ -151,6 +149,68 @@ pub fn part1(input: String) -> u64 {
     0
 }
 
+fn eval_full(seed: u64) {
+    let mut a = seed;
+    let mut b = 0;
+    let mut c = 0;
+    for _ in 0..16 {
+        b = (a & 7u64) ^ 5_u64;
+        c = a >> b;
+        b = b ^ 6_u64;
+        b = b ^ c;
+        print!("{},", b & 7);
+        a = a >> 3_u64;
+    }
+    println!("");
+}
+
+fn eval(a: u64) -> u64 {
+    let b = (a & 7u64) ^ 5_u64;
+    (b ^ (a >> b) ^ 6_u64) & 7_u64
+}
+
+fn recurse(pre_a: u64, out: &Vec<u64>, target: &Vec<u64>) -> Option<Vec<u64>> {
+    if out.len() == target.len() {
+        return Some(out.to_vec());
+    }
+    (0_u64..(1 << 3)).map(|i| pre_a + (i << 7)).find_map(|a| {
+        if eval(a) == target[out.len()] {
+            let mut new_out: Vec<u64> = out.clone();
+            new_out.push(if new_out.len() == target.len() - 1 {
+                a
+            } else {
+                a & 7
+            });
+            recurse(a >> 3, &new_out, target)
+        } else {
+            None
+        }
+    })
+}
+
 pub fn part2(input: String) -> u64 {
-    0
+    let program: Vec<u64> = input
+        .split_once("\n\n")
+        .unwrap()
+        .1
+        .split_once(": ")
+        .unwrap()
+        .1
+        .split(',')
+        .filter_map(|v| remove_whitespace(v).parse::<u64>().ok())
+        .collect();
+
+    (0..(1 << 10))
+        .filter(|i| eval(*i) == program[0])
+        .find_map(|seed| {
+            let out = vec![seed & 7];
+            recurse(seed >> 3, &out, &program)
+        })
+        .unwrap()
+        .iter()
+        .enumerate()
+        .fold(0, |acc, (i, e)| acc + (e << (i * 3)))
+
+    // println!("{:?}", final_solution);
+    // println!("{:?}", eval_full(final_solution));
 }

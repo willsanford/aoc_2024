@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 fn p1_helper(s: String, towels: &Vec<String>, cache: &mut HashMap<String, bool>) -> bool {
     if let Some(b_) = cache.get(&s) {
